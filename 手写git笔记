@@ -1,0 +1,573 @@
+1.GIT配置
+$ git config --global user.name "sebeeven"
+$ git config --global user.email "1901464656@qq.com"
+2.获得一个GIT仓库
+1）clone一个仓库：
+$ git clone http://git.shiyanlou.com/shiyanlou/gitproject
+2）初始化一个新的仓库：
+$ mkdir project
+cd project下
+$ git init
+
+3.正常工作流程
+1）   创建或修改文件
+$ cd project
+$ touch file1 file2 file3
+$ echo "testcontent1" >> file1
+$ echo "testcontent1" >> file2
+$ echo "testcontent1" >> file3
+输入git status发现，有三个文件处于untracked状态，下一步需要用git add命令将他们加入到缓存区（Index）。
+2）   使用git add命令添加新创建或修改的文件到本地的缓存区（Index）
+$ git add file1 file2 file3
+输入git status发现，现在已为commit做好了准备，可以使用 git diff 命令再加上 --cached 参数，看看缓存区中哪些文件被修改了。进入到git diff --cached界面后需要输入q才可以退出。
+$ git diff --cached
+如果没有--cached参数，git diff 会显示当前你所有已做的但没有加入到索引里的修改。 
+如果你要做进一步的修改, 那就继续做, 做完后就把新修改的文件add到缓存区中。
+当所有新建或修改的文件都被添加到了缓存区，我们就要使用git commit提交到本地仓库。
+3）   使用git commit命令提交到本地代码库
+$ git commit  -m "add 3 files"
+使用-m添加本次修改的注释，完成后就会记录一个新的项目版本。除了用git add 命令，我们还可以用下面的命令将所有没有加到缓存区的修改也一起提交，但-a命令不会添加新建的文件。
+$ git commit -a -m "add 3 files"
+如果是删除文件，则直接使用git rm命令删除后会自动将已删除文件的信息添加到缓存区，git commit提交后就会将本地仓库中的对应文件删除。
+4）（可选，有的时候并没有可以同步的远端代码库）使用git push命令将本地代码库同步到远端代码库
+如果本地的仓库连接到了远程Git服务器，可以使用下面的命令将本地仓库同步到远端服务器：
+$ git push origin master
+这时候可能需要你输入在Git服务器上的用户名和密码。
+
+
+
+4.分支与合并
+
+Git的分支可以让你在主线（master分支）之外进行代码提交，同时又不会影响代码库主线。分支的作用体现在多人协作开发中，比如一个团队开发软件，你负责独立的一个功能需要一个月的时间来完成，你就可以创建一个分支，只把该功能的代码提交到这个分支，而其他同事仍然可以继续使用主线开发，你每天的提交不会对他们造成任何影响。当你完成功能后，测试通过再把你的功能分支合并到主线。
+1.分支
+
+一个Git仓库可以维护很多开发分支。现在我们来创建一个新的叫 experimental的分支：
+git branch experimental
+运行git branch命令可以查看当前的分支列表，已经目前的开发环境处在哪个分支上：
+$ git branch
+ experimental
+* master
+experimental 分支是你刚才创建的，master分支是Git系统默认创建的主分支。星号标识了你当工作在哪个分支下，输入git checkout 分支名可以切换到其他分支：
+$ git checkout experimental
+Switched to branch 'experimental'
+
+1) 切换到experimental分支，切换完成后，先编辑里面的一个文件，再提交(commit)改动，最后切换回 “master”分支：
+# 修改文件file1
+$ echo "update" >> file1
+# 查看当前状态
+$ git status
+# 添加并提交file1的修改
+$ git add file1
+$ git commit -m "update file1"
+# 查看file1的内容
+$ cat file1
+test
+update
+# 切换到master分支
+$ git checkout master
+
+2) 现在可以在master分支下再作一些不同的修改:
+# 修改文件file2
+$ echo "update again" >> file2
+# 查看当前状态
+$ git status
+# 添加并提交file2的修改
+$ git add file2
+$ git commit -m "update file2 on master"
+# 查看file2的内容
+$ cat file2
+test
+update again
+
+这时，两个分支就有了各自不同的修改，分支的内容都已经不同,可以通过下面的git merge命令来合并experimental到主线分支master:
+# 切换到master分支
+$ git checkout master
+# 将experimental分支合并到master
+$ git merge  -m 'merge experimental branch' experimental
+由于两个branch修改了两个不同的文件，所以合并时不会有冲突，执行上面的命令后合并就完成了。
+如果有冲突，比如两个分支都改了一个文件file3，则合并时会失败。
+
+当我们完成合并后，不再需要experimental时，可以使用下面的命令删除：
+$ git branch -d experimental
+git branch -d只能删除那些已经被当前分支的合并的分支. 如果你要强制删除某个分支的话就用git branch –D
+
+2.撒销一个合并
+
+如果觉得合并后的状态是一团乱麻，想把当前的修改都放弃，你可以用下面的命令回到合并之前的状态：
+$ git reset --hard HEAD^
+# 查看file3的内容，已经恢复到合并前的master上的文件内容
+$ cat file3
+
+5.Git日志
+1).查看日志 $git log
+2).日志统计 $ git log --stat
+
+3).格式化日志
+
+你可以按你的要求来格式化日志输出。--pretty 参数可以使用若干表现格式，如oneline:
+
+$ git log --pretty=oneline
+
+或者你也可以使用 short 格式:
+
+$ git log --pretty=short
+
+你也可用medium,full,fuller,email 或raw。 如果这些格式不完全符合你的相求， 你也可以用--pretty=format参数定义格式。
+
+--graph 选项可以可视化你的提交图(commit graph)，会用ASCII字符来画出一个很漂亮的提交历史(commit history)线：
+
+$ git log --graph --pretty=oneline
+
+4).日志排序
+
+日志记录可以按不同的顺序来显示。如果你要指定一个特定的顺序，可以为git log命令添加顺序参数。
+
+按默认情况，提交会按逆时间顺序显示，可以指定--topo-order参数，让提交按拓扑顺序来显示(就是子提交在它们的父提交前显示):
+
+$ git log --pretty=format:'%h : %s' --topo-order --graph
+
+你也可以用 --reverse参数来逆向显示所有提交日志。
+
+6、小结
+
+本节讲解了几个基本命令：
+
+    git config：配置相关信息
+    git clone：复制仓库
+    git init：初始化仓库
+    git add：添加更新内容到索引中
+    git diff：比较内容
+    git status：获取当前项目状况
+    git commit：提交
+    git branch：分支相关
+    git checkout：切换分支
+    git merge：合并分支
+    git reset：恢复版本
+    git log：查看日志
+
+
+
+
+
+
+___________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+一、实验说明
+
+本节实验为 Git 入门第二个实验，继续练习最常用的git命令。
+1.1 实验准备
+
+在进行该实验之前，可以先clone一个练习项目gitproject:
+
+$ git clone http://git.shiyanlou.com/shiyanlou/gitproject
+
+本节中的实验操作都是在该项目中完成。
+二、比较内容
+1.比较提交 - Git Diff
+
+现在我们对项目做些修改：
+
+$ cd gitproject
+# 向README文件添加一行
+$ echo "new line" >> README.md
+# 添加新的文件file1
+$ echo "new file" >> file1
+
+使用git status查看当前修改的状态：
+
+$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+    modified:   README.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+    file1
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+可以看到一个文件修改了，另外一个文件添加了。如何查看修改的文件内容呢，那就需要使用git diff命令。git diff命令的作用是比较修改的或提交的文件内容。
+
+$ git diff
+diff --git a/README.md b/README.md
+index 21781dd..410e719 100644
+--- a/README.md
++++ b/README.md
+@@ -1,2 +1,3 @@
+ gitproject
+ ==========
++new line
+
+上面的命令执行后需要使用q退出。命令输出当前工作目录中修改的内容，并不包含新加文件，请注意这些内容还没有添加到本地缓存区。
+
+将修改内容添加到本地缓存区，通配符可以把当前目录下所有修改的新增的文件都自动添加：
+
+$ git add *
+
+再执行git diff会发现没有任何内容输出，说明当前目录的修改都被添加到了缓存区，如何查看缓存区内与上次提交之间的差别呢？需要使用--cached参数：
+
+$ git diff --cached
+diff --git a/README.md b/README.md
+index 21781dd..410e719 100644
+--- a/README.md
++++ b/README.md
+@@ -1,2 +1,3 @@
+ gitproject
+ ==========
++new line
+diff --git a/file1 b/file1
+new file mode 100644
+index 0000000..fa49b07
+--- /dev/null
++++ b/file1
+@@ -0,0 +1 @@
++new file
+
+可以看到输出中已经包含了新加文件的内容，因为file1已经添加到了缓存区。
+
+最后我们提交代码：
+
+$ git commit -m 'update code'
+
+提交后git diff与git diff --cached都不会有任何输出了。
+2.比较分支
+
+可以用 git diff 来比较项目中任意两个分支的差异。
+
+我们首先创建一个新的分支test，并在该分支上提交一些修改：
+
+# 创建test分支并切换到该分支
+$ git branch test
+$ git checkout test
+# 添加新的一行到file1
+$ echo "branch test" >> file1
+# 创建新的文件file2
+$ echo "new file2" >> file2
+# 提交所有修改
+$ git add *
+$ git commit -m 'update test branch'
+
+然后，我们查看test分支和master之间的差别：
+
+$ git diff master test
+diff --git a/file1 b/file1
+index fa49b07..17059cd 100644
+--- a/file1
++++ b/file1
+@@ -1 +1,2 @@
+ new file
++branch test
+diff --git a/file2 b/file2
+new file mode 100644
+index 0000000..80e7991
+--- /dev/null
++++ b/file2
+@@ -0,0 +1 @@
++new file2
+
+git diff 是一个难以置信的有用的工具，可以找出你项目上任意两个提交点间的差异。可以使用git help diff详细查看其他参数和功能。
+3.更多的比较选项
+
+如果你要查看当前的工作目录与另外一个分支的差别，你可以用下面的命令执行:
+
+# 切换到master
+$ git checkout master
+
+# 查看与test分支的区别
+$ git diff test
+diff --git a/file1 b/file1
+index 17059cd..fa49b07 100644
+--- a/file1
++++ b/file1
+@@ -1,2 +1 @@
+ new file
+-branch test
+diff --git a/file2 b/file2
+deleted file mode 100644
+index 80e7991..0000000
+--- a/file2
++++ /dev/null
+@@ -1 +0,0 @@
+-new file2
+
+你也以加上路径限定符，来只比较某一个文件或目录：
+
+$ git diff test file1
+diff --git a/file1 b/file1
+index 17059cd..fa49b07 100644
+--- a/file1
++++ b/file1
+@@ -1,2 +1 @@
+ new file
+-branch test
+
+上面这条命令会显示你当前工作目录下的file1与test分支之间的差别。
+
+--stat 参数可以统计一下有哪些文件被改动，有多少行被改动：
+
+$ git diff test --stat
+ file1 | 1 -
+ file2 | 1 -
+ 2 files changed, 2 deletions(-)
+
+三、分布式的工作流程
+1.分布式的工作流程
+
+你目前的项目在/home/shiyanlou/gitproject目录下，这是我们的git 仓库(repository)，另一个用户也想与你协作开发。他的工作目录在这台机器上，如何让他提交代码到你的git仓库呢？
+
+首先，我们假设另一个用户也用shiyanlou用户登录，只是工作在不同的目录下开发代码，实际工作中不太可能发生，大部分情况都是多个用户，这个假设只是为了让实验简化。
+
+该用户需要从git仓库进行克隆：
+
+# 进入到临时目录
+$ cd /tmp
+# 克隆git仓库
+$ git clone /home/shiyanlou/gitproject myrepo
+$ ls -l myrepo
+-rw-rw-r-- 1 shiyanlou shiyanlou 31 Dec 22 08:24 README.md
+-rw-rw-r-- 1 shiyanlou shiyanlou  9 Dec 22 08:24 file1
+
+这就建了一个新的叫"myrepo"的目录，这个目录里包含了一份gitproject仓库的克隆。这份克隆和原始的项目一模一样，并且拥有原始项目的历史记录。
+
+在myrepo做了一些修改并且提交:
+
+$ cd myrepo
+
+# 添加新的文件newfile
+$ echo "newcontent" > newfile
+
+# 提交修改
+$ git add newfile
+$ git commit -m "add newfile"
+
+myrepo修改完成后，如果我们想合并这份修改到gitproject的git仓库该如何做呢？
+
+可以在仓库/home/shiyanlou/gitproject中把myrepo的修改给拉 (pull)下来。执行下面几条命令:
+
+$ cd /home/shiyanlou/gitproject
+$ git pull /tmp/myrepo master
+remote: Counting objects: 5, done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 0), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From /tmp/myrepo
+ * branch            master     -> FETCH_HEAD
+Updating 8bb57aa..866c452
+Fast-forward
+ newfile | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 newfile
+
+# 查看当前目录文件
+$ ls                                                                                                    [8:28:02]
+README.md  file1  newfile
+
+这就把myrepo的主分支合并到了gitproject的当前分支里了。
+
+如果gitproject在myrepo修改文件内容的同时也做了修改的话，可能需要手工去修复冲突。
+
+如果你要经常操作远程分支(remote branch),你可以定义它们的缩写:
+
+$ git remote add myrepo /tmp/myrepo
+
+git pull命令执行两个操作: 它从远程分支(remote branch)抓取修改git fetch的内容，然后把它合并git merge进当前的分支。
+
+gitproject里可以用git fetch 来执行git pull前半部分的工作， 但是这条命令并不会把抓下来的修改合并到当前分支里：
+
+$ git fetch myrepo
+From /tmp/myrepo
+ * [new branch]      master     -> myrepo/master
+
+获取后，我们可以通过git log查看远程分支做的所有修改，由于我们已经合并了所有修改，所以不会有任何输出：
+
+$ git log -p master..myrepo/master
+
+当检查完修改后，gitproject可以把修改合并到它的主分支中：
+
+$ git merge myrepo/master
+Already up-to-date.
+
+如果我们在myrepo目录下执行git pull会发生什么呢？
+
+myrepo会从克隆的位置拉取代码并更新本地仓库，就是把gitproject上的修改同步到本地:
+
+# 进入到gitproject
+$ cd /home/shiyanlou/gitproject
+
+# 添加一行内容到newfile
+$ echo "gitproject: new line" >> newfile
+
+# 提交修改
+$ git commit -a -m 'add newline to newfile'
+[master 8c31532] add newline to newfile
+ 1 file changed, 1 insertion(+)
+
+# 进入myrepo目录
+$ cd /tmp/myrepo
+
+# 同步gitproject的所有修改
+$ git pull
+remote: Counting objects: 6, done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 1), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From /home/shiyanlou/gitproject
+   8bb57aa..8c31532  master     -> origin/master
+Updating 866c452..8c31532
+Fast-forward
+ newfile | 1 +
+ 1 file changed, 1 insertion(+)
+
+因为myrepo是从gitproject仓库克隆的，那么他就不需要指定gitproject仓库的地 址。因为Git把gitproject仓库的地址存储到myrepo的配置文件中，这个地址就是在git pull时默认使用的远程仓库：
+
+$ git config --get remote.origin.url
+/home/shiyanlou/gitproject
+
+如果myrepo和gitproject在不同的主机上，可以通过ssh协议来执行clone 和pull操作：
+
+$ git clone localhost:/home/shiyanlou/girproject test
+
+这个命令会提示你输入shiyanlou用户的密码，用户密码随机，可以点击屏幕上方的SSH按钮查看。
+2.公共Git仓库
+
+开发过程中，通常大家都会使用一个公共的仓库，并clone到自己的开发环境中，完成一个阶段的代码后可以告诉目标仓库的维护者来pull自己的代码。
+
+如果你和维护者都在同一台机器上有帐号，那么你们可以互相从对 方的仓库目录里直接拉所作的修改，git命令里的仓库地址也可以是本地的某个目录名：
+
+$ git clone /path/to/repository
+$ git pull /path/to/other/repository
+
+也可以是一个ssh地址：
+
+$ git clone ssh://yourhost/~you/repository
+
+3.将修改推到一个公共仓库
+
+通过http或是git协议，其它维护者可以通过远程访问的方式抓取(fetch)你最近的修改，但是他们 没有写权限。如何将本地私有仓库的最近修改主动上传到公共仓库中呢？
+
+最简单的办法就是用git push命令，推送本地的修改到远程Git仓库，执行下面的命令:
+
+$ git push ssh://yourserver.com/~you/proj.git master:master
+
+或者
+
+$ git push ssh://yourserver.com/~you/proj.git master
+
+git push命令的目地仓库可以是ssh或http/https协议访问。
+4.当推送代码失败时要怎么办
+
+如果推送(push)结果不是快速向前fast forward，可能会报像下面一样的错误：
+
+error: remote 'refs/heads/master' is not an ancestor of
+local  'refs/heads/master'.
+Maybe you are not up-to-date and need to pull first?
+error: failed to push to 'ssh://yourserver.com/~you/proj.git'
+
+这种情况通常是因为没有使用git pull获取远端仓库的最新更新，在本地修改的同时，远端仓库已经变化了（其他协作者提交了代码），此时应该先使用git pull合并最新的修改后再执行git push：
+
+$ git pull
+$ git push ssh://yourserver.com/~you/proj.git master
+
+四、Git标签
+1.轻量级标签
+
+我们可以用 git tag不带任何参数创建一个标签(tag)指定某个提交(commit):
+
+# 进入到gitproject目录
+$ cd /home/shiyanlou/gitproject
+
+# 查看git提交记录
+$ git log
+
+# 选择其中一个记录标志位stable-1的标签，注意需要将后面的8c315325替换成仓库下的真实提交内，commit的名称很长，通常我们只需要写前面8位即可
+$ git tag stable-1 8c315325
+
+# 查看当前所有tag
+$ git tag
+stable-1
+
+这样，我们可以用stable-1 作为提交 8c315325 的代称。
+
+前面这样创建的是一个“轻量级标签”。
+
+如果你想为一个tag添加注释，或是为它添加一个签名, 那么我们就需要创建一个 "标签对象"。
+标签对象
+
+git tag中使用-a， -s 或是 -u三个参数中任意一个，都会创建一个标签对象，并且需要一个标签消息(tag message)来为tag添加注释。 如果没有-m 或是 -F 这些参数，命令执行时会启动一个编辑器来让用户输入标签消息。
+
+当这样的一条命令执行后，一个新的对象被添加到Git对象库中，并且标签引用就指向了一个标签对象，而不是指向一个提交，这就是与轻量级标签的区别。
+
+下面是一个创建标签对象的例子:
+
+$ git tag -a stable-2 8c315325 -m "stable 2"
+$ git tag
+stable-1
+stable-2
+
+2.签名的标签
+
+签名标签可以让提交和标签更加完整可信。如果你配有GPG key，那么你就很容易创建签名的标签。首先你要在你的 .git/config 或 ~/.gitconfig 里配好key。
+
+下面是示例:
+
+[user]
+    signingkey = <gpg-key-id>
+
+你也可以用命令行来配置:
+
+$ git config (--global) user.signingkey <gpg-key-id>
+
+现在你可以在创建标签的时候使用-s 参数来创建“签名的标签”：
+
+$ git tag -s stable-1 1b2e1d63ff
+
+如果没有在配置文件中配GPG key,你可以用-u参数直接指定。
+
+$ git tag -u <gpg-key-id> stable-1 1b2e1d63ff
+
+五、小结
+
+本节学习了下面知识点：
+
+    git diff
+    分布式的工作流程
+    git tag
+
+对于初学者，如果不想深入git强大的高级功能的话，学完这个实验就可以了，因为后续实验内容用到的比较少，并且理解难度大。如果仍然感兴趣，建议使用一段时间git后再仔细学习后续实验，会有更好的收获。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,62 @@
+Django web开发
+
+前提-准备
+参考：https://djangogirlstaipei.gitbooks.io/django-girls-taipei-tutorial/content/django/installation.html
+说明：以下虚拟环境下命令符统一以(env1)$开始，省略中间用户信息。
+一、安装虚拟环境：
+安装virtualenv，$pip install virtualenv,然后在usr/bin下是否有virtualenv，有则成功安装（usr/bin已在系统路径中，可用echo $PATH查看）
+1）在Home目录~下创建文件夹django_sebeeven，在此目录下创建虚拟环境$virtualenv env1。等待系统配置虚拟环境及目录env1。查看env1/bin下有activate文件，$source env1/bin/activate 激活，命令符前面将出现(env1)...$字样，说明已成功进入虚拟环境（以后每次都要$source env1/bin/activate 激活进入虚拟环境工作，使用$deactivate退出虚拟环境）。
+2)虚拟环境的lib/python3.5/site-packages下，有独立于本系统的第三方库，以及与系统共用的库的软链接。虚拟环境中如需添加其它库，可(env1)$ pip3 install xxx完成，安装位置就在lib/python3.5/site-packages下。
+
+二、安装django
+1）安装最新版django：(env1)$ pip3 install "django<2.0" （可查看官网最新版本号）
+2）确认成功安装：进入pyton
+(env1)$ python
+>>>import django
+>>>django.VERSION
+(1,9,5,'final,0')
+
+三、创建django的project和app
+1）创建工程：
+env1/bin/下已有django-admin.py文件，可用它创建工程(env1)$ django-admin.py startproject mysite，此时django_sebeeven目录下创建了mysite工作目录，mysite下有manage.py和另mysite文件夹，另mysite下有__init__.py，settings.py，urls.py，wsgi.py四个文件。
+2）启动开发服务器（本地）
+django_sebeeven/mysite目录下，(env1)$ python3 manage.py runserver。出现如下字样即为成功：
+Django version 1.8.5, using settings 'mysite.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+打开浏览器输入：http://127.0.0.1:8000/，出现“It worked!.....”标题即为成功。
+
+3）创建app
+django_sebeeven/mysite目录下，(env1)$ python3 manage.py startapp blog，此时django_sebeeven/mysite目录下出现blog文件夹，blog下有admin.py， __init__.py，models.py，views.py等文件。
+到此，文件结构如下：
+mysite
+├── manage.py
+├── mysite
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+└── trips
+    ├── __init__.py
+    ├── admin.py
+    ├── migrations
+    ├── models.py
+    ├── tests.py
+    └── views.py
+
+4）配置app
+打开mysite/settings.py，在INSTALLED_APPS末尾添加app名字，如：
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+)
+
+5）建立views与urls的联动
+
+
+
